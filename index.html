@@ -1,1 +1,567 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Marca X — Site Completo</title>
+  <meta name="description" content="Site completo e responsivo em HTML + CSS, com dark mode, componentes reutilizáveis e animações." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ====== RESET + BASE ====== */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body { margin: 0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji'; line-height: 1.6; background: var(--bg); color: var(--text); }
+    img, svg, video, canvas { display: block; max-width: 100%; height: auto; }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; }
+
+    /* ====== VARIÁVEIS ====== */
+    :root {
+      --bg: #0b0c0f;
+      --muted-bg: #11131a;
+      --panel: #131620;
+      --panel-2: #181c29;
+      --text: #e6e8f2;
+      --text-muted: #a8b0c2;
+      --primary: #6d8dff;
+      --primary-600: #5677ff;
+      --primary-700: #3e60ff;
+      --accent: #22d3ee;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --border: #242a3a;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius-lg: 18px; 
+      --radius: 12px; 
+      --radius-sm: 10px;
+      --container: 1200px;
+      --gap: 20px;
+    }
+
+    /* Light mode por preferência do sistema */
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f8fafc;
+        --muted-bg: #f1f5f9;
+        --panel: #ffffff;
+        --panel-2: #f8fafc;
+        --text: #0f172a;
+        --text-muted: #475569;
+        --primary: #335cff;
+        --primary-600: #2b50e6;
+        --primary-700: #2446cc;
+        --accent: #0891b2;
+        --border: #e2e8f0;
+        --shadow: 0 10px 30px rgba(15,23,42,.08);
+      }
+    }
+
+    /* Forçar tema com a classe .light ou .dark no <html> */
+    html.light {
+      --bg: #f8fafc; --muted-bg:#f1f5f9; --panel:#ffffff; --panel-2:#f8fafc; --text:#0f172a; --text-muted:#475569; --primary:#335cff; --primary-600:#2b50e6; --primary-700:#2446cc; --accent:#0891b2; --border:#e2e8f0; --shadow:0 10px 30px rgba(15,23,42,.08);
+    }
+    html.dark {
+      --bg:#0b0c0f; --muted-bg:#11131a; --panel:#131620; --panel-2:#181c29; --text:#e6e8f2; --text-muted:#a8b0c2; --primary:#6d8dff; --primary-600:#5677ff; --primary-700:#3e60ff; --accent:#22d3ee; --border:#242a3a; --shadow:0 10px 30px rgba(0,0,0,.35);
+    }
+
+    /* ====== LAYOUT ====== */
+    .container { width: min(100% - 2rem, var(--container)); margin-inline: auto; }
+    .grid { display: grid; gap: var(--gap); }
+    .grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .grid-4 { grid-template-columns: repeat(4, 1fr); }
+    @media (max-width: 900px) { .grid-4{grid-template-columns: repeat(2,1fr);} }
+    @media (max-width: 800px) { .grid-3{grid-template-columns: repeat(2,1fr);} .grid-2{grid-template-columns: 1fr;} }
+
+    .section { padding: 64px 0; }
+    .section-sm { padding: 40px 0; }
+    .muted { background: var(--muted-bg); }
+
+    /* ====== COMPONENTES ====== */
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px; box-shadow: var(--shadow); transition: transform .2s ease, box-shadow .2s ease; }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 14px 40px rgba(0,0,0,.35); }
+
+    .btn { display: inline-flex; align-items: center; gap: .65rem; border: 1px solid var(--border); background: var(--panel); padding: .85rem 1.1rem; border-radius: 999px; font-weight: 600; box-shadow: var(--shadow); transition: background .2s ease, transform .12s ease; }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-primary { background: var(--primary); border-color: transparent; color: white; }
+    .btn-primary:hover { background: var(--primary-600); }
+    .btn-outline { background: transparent; }
+    .btn-ghost { background: transparent; border-color: transparent; }
+
+    .tag { display:inline-block; padding:.25rem .6rem; border-radius: 999px; font-size:.8rem; border:1px solid var(--border); background: var(--panel-2); color:var(--text-muted); }
+
+    .input, .select, .textarea { width: 100%; padding: .85rem 1rem; border-radius: var(--radius); border: 1px solid var(--border); background: var(--panel); color: var(--text); outline: none; transition: border-color .2s ease, box-shadow .2s ease; }
+    .input:focus, .select:focus, .textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 6px color-mix(in oklab, var(--primary) 20%, transparent); }
+
+    .badge { font-size:.75rem; padding:.25rem .5rem; border-radius: .5rem; background: color-mix(in oklab, var(--accent) 22%, var(--panel)); color: var(--text); border: 1px solid var(--border); }
+
+    /* ====== TIPOGRAFIA ====== */
+    h1, h2, h3 { line-height: 1.2; letter-spacing:-.02em; }
+    h1 { font-size: clamp(2rem, 3vw + 1rem, 3rem); }
+    h2 { font-size: clamp(1.6rem, 2vw + .5rem, 2.25rem); }
+    h3 { font-size: 1.25rem; }
+    p.lead { font-size: clamp(1.05rem, .9rem + .6vw, 1.25rem); color: var(--text-muted); }
+
+    /* ====== NAVBAR ====== */
+    .nav-wrap { position: sticky; top: 0; backdrop-filter: saturate(1.5) blur(10px); background: color-mix(in oklab, var(--bg) 70%, transparent); border-bottom: 1px solid var(--border); z-index: 50; }
+    .nav { display:flex; align-items:center; justify-content: space-between; gap: 1rem; padding: .75rem 0; }
+    .brand { display:flex; align-items:center; gap:.6rem; font-weight:800; }
+    .brand .logo { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, var(--primary), var(--accent)); display:grid; place-items:center; color:white; font-weight:800; }
+    .nav a.link { opacity:.9; font-weight:600; }
+    .nav a.link:hover { opacity:1; }
+    .nav .menu { display:flex; gap: 1rem; }
+    .nav .actions { display:flex; gap:.6rem; align-items:center; }
+    .nav .toggle { display:none; }
+    @media (max-width: 860px){
+      .nav .menu { display:none; position:absolute; left:0; right:0; top:64px; background: var(--panel); border-bottom:1px solid var(--border); padding: 1rem; }
+      .nav .menu.open { display:grid; }
+      .nav .toggle { display:inline-flex; }
+    }
+
+    /* ====== HERO ====== */
+    .hero { padding: 84px 0 64px; }
+    .hero .wrap { display:grid; grid-template-columns: 1.2fr 1fr; gap: 36px; align-items: center; }
+    .hero .image { aspect-ratio: 4/3; border-radius: var(--radius-lg); overflow: hidden; border:1px solid var(--border); box-shadow: var(--shadow); background: linear-gradient(135deg, color-mix(in oklab, var(--primary) 16%, var(--panel)), color-mix(in oklab, var(--accent) 10%, var(--panel-2))); }
+    .hero img { width: 100%; height: 100%; object-fit: cover; mix-blend: luminosity; opacity: .9; }
+    @media (max-width: 980px){ .hero .wrap { grid-template-columns: 1fr; } }
+
+    /* ====== SEÇÕES ====== */
+    .feature { display:grid; gap:.5rem; }
+
+    .pricing { display:grid; gap: var(--gap); grid-template-columns: repeat(3, 1fr); }
+    @media (max-width: 950px){ .pricing { grid-template-columns: 1fr; } }
+    .price-card { padding: 28px; border-radius: var(--radius-lg); border:1px solid var(--border); background: var(--panel); box-shadow: var(--shadow); position: relative; overflow: hidden; }
+    .price-card.popular { outline: 2px solid var(--primary); }
+    .price { font-size: 2.25rem; font-weight: 800; }
+    .price small { font-size: .9rem; color: var(--text-muted); font-weight: 600; }
+    .check { display:flex; align-items:center; gap:.6rem; }
+
+    .testimonial { display:grid; gap: 1rem; }
+    .avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent)); display:grid; place-items:center; color:white; font-weight:700; }
+
+    .faq details { background: var(--panel); border:1px solid var(--border); border-radius: var(--radius); padding: .9rem 1rem; box-shadow: var(--shadow); }
+    .faq summary { cursor: pointer; font-weight: 700; }
+
+    /* ====== TABELA ====== */
+    table { width: 100%; border-collapse: collapse; border:1px solid var(--border); overflow: hidden; border-radius: var(--radius); background: var(--panel); box-shadow: var(--shadow); }
+    th, td { padding: .9rem 1rem; text-align: left; border-bottom:1px solid var(--border); }
+    thead th { background: var(--panel-2); font-weight: 700; }
+    tbody tr:hover { background: color-mix(in oklab, var(--panel) 80%, var(--primary) 3%); }
+
+    /* ====== GALERIA ====== */
+    .gallery { columns: 3 240px; column-gap: 14px; }
+    .gallery img { width: 100%; margin-bottom: 14px; border-radius: 14px; border:1px solid var(--border); box-shadow: var(--shadow); }
+
+    /* ====== FOOTER ====== */
+    footer { background: var(--panel); border-top:1px solid var(--border); margin-top: 64px; }
+
+    /* ====== UTILITÁRIOS ====== */
+    .center { text-align:center; }
+    .row { display:flex; gap: .75rem; flex-wrap: wrap; }
+    .hidden { display:none; }
+    .max-w-sm { max-width: 520px; }
+    .max-w-md { max-width: 860px; }
+
+    /* ====== ANIMAÇÕES ====== */
+    @keyframes floatIn {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .reveal { animation: floatIn .6s ease forwards; opacity: 0; }
+
+  </style>
+</head>
+<body>
+  <!-- ====== NAV ====== -->
+  <div class="nav-wrap">
+    <nav class="nav container" aria-label="Navegação principal">
+      <a class="brand" href="#">
+        <span class="logo" aria-hidden="true">X</span>
+        <span>Marca X</span>
+      </a>
+      <button class="btn btn-ghost toggle" aria-expanded="false" aria-controls="menu" id="menuBtn">☰</button>
+      <div id="menu" class="menu" role="menubar">
+        <a class="link" role="menuitem" href="#servicos">Serviços</a>
+        <a class="link" role="menuitem" href="#portfolio">Portfólio</a>
+        <a class="link" role="menuitem" href="#precos">Preços</a>
+        <a class="link" role="menuitem" href="#blog">Blog</a>
+        <a class="link" role="menuitem" href="#contato">Contato</a>
+      </div>
+      <div class="actions">
+        <button id="themeBtn" class="btn" aria-label="Alternar tema">🌓</button>
+        <a href="#contato" class="btn btn-primary">Começar</a>
+      </div>
+    </nav>
+  </div>
+
+  <!-- ====== HERO ====== -->
+  <header class="hero">
+    <div class="container wrap">
+      <div class="reveal" style="animation-delay:.05s">
+        <span class="tag">Novo em 2025</span>
+        <h1 style="margin:.5rem 0 0">Construa experiências digitais incríveis</h1>
+        <p class="lead">Site completo com HTML + CSS moderno, responsivo, acessível, com componentes reutilizáveis e dark mode. Ideal para portfólios, negócios locais e landing pages.</p>
+        <div class="row" style="margin-top: 1rem;">
+          <a class="btn btn-primary" href="#precos">Ver Planos</a>
+          <a class="btn btn-outline" href="#portfolio">Explorar Portfólio</a>
+        </div>
+        <div class="row" style="margin-top: .8rem;">
+          <span class="badge">Sem frameworks</span>
+          <span class="badge">A11y</span>
+          <span class="badge">Mobile-first</span>
+        </div>
+      </div>
+      <div class="image reveal" style="animation-delay:.15s">
+        <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1600&auto=format&fit=crop" alt="Equipe colaborando em frente a notebooks.">
+      </div>
+    </div>
+  </header>
+
+  <!-- ====== SERVIÇOS ====== -->
+  <section id="servicos" class="section muted">
+    <div class="container">
+      <div class="center max-w-md" style="margin-inline:auto;">
+        <h2>O que oferecemos</h2>
+        <p class="lead">Soluções sob medida para sua presença online, da identidade visual ao desempenho e SEO.</p>
+      </div>
+      <div class="grid grid-3" style="margin-top: 28px;">
+        <article class="card feature">
+          <h3>Design Responsivo</h3>
+          <p>Layouts fluidos que se adaptam a qualquer tela, garantindo uma experiência impecável.</p>
+          <span class="tag">Grid & Flex</span>
+        </article>
+        <article class="card feature">
+          <h3>Performance</h3>
+          <p>CSS otimizado, imagens dimensionadas e boas práticas para carregamento veloz.</p>
+          <span class="tag">Core Web Vitals</span>
+        </article>
+        <article class="card feature">
+          <h3>Acessibilidade</h3>
+          <p>Navegação por teclado, contraste adequado e semântica para todos os públicos.</p>
+          <span class="tag">WCAG</span>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== PORTFÓLIO ====== -->
+  <section id="portfolio" class="section">
+    <div class="container">
+      <div class="row" style="justify-content: space-between; align-items: end; gap: 1rem;">
+        <div>
+          <h2>Projetos em destaque</h2>
+          <p class="lead">Alguns cases recentes que amamos construir.</p>
+        </div>
+        <div>
+          <a class="btn" href="#">Ver todos</a>
+        </div>
+      </div>
+
+      <div class="grid grid-3" style="margin-top: 22px;">
+        <figure class="card">
+          <img src="https://images.unsplash.com/photo-1508057198894-247b23fe5ade?q=80&w=1600&auto=format&fit=crop" alt="Dashboard escura com gráficos." style="border-radius: 12px;">
+          <figcaption style="margin-top:.6rem"><strong>Analytics Pro</strong><br><span class="text-muted">Dashboard e UI System</span></figcaption>
+        </figure>
+        <figure class="card">
+          <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1600&auto=format&fit=crop" alt="Código em editor de texto." style="border-radius: 12px;">
+          <figcaption style="margin-top:.6rem"><strong>DevTools Kit</strong><br><span class="text-muted">Landing Page</span></figcaption>
+        </figure>
+        <figure class="card">
+          <img src="https://images.unsplash.com/photo-1547658719-da2b51169166?q=80&w=1600&auto=format&fit=crop" alt="Loja online com cartões de produto." style="border-radius: 12px;">
+          <figcaption style="margin-top:.6rem"><strong>Shop Minimal</strong><br><span class="text-muted">E‑commerce</span></figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== TABELA COMPARATIVA ====== -->
+  <section class="section muted">
+    <div class="container">
+      <h2 class="center">Comparativo rápido</h2>
+      <p class="lead center max-w-md" style="margin: 0 auto 18px;">Veja de forma objetiva as diferenças entre os planos.</p>
+      <div class="card" style="padding:0; overflow:auto;">
+        <table aria-label="Tabela comparativa de planos">
+          <thead>
+            <tr>
+              <th>Recurso</th>
+              <th>Essencial</th>
+              <th>Pro</th>
+              <th>Empresarial</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>SEO Básico</td><td>✓</td><td>✓</td><td>✓</td></tr>
+            <tr><td>Blog</td><td>—</td><td>✓</td><td>✓</td></tr>
+            <tr><td>Checkout</td><td>—</td><td>—</td><td>✓</td></tr>
+            <tr><td>Suporte</td><td>Email</td><td>Email/Chat</td><td>Prioritário</td></tr>
+            <tr><td>Integrações</td><td>3</td><td>10</td><td>Ilimitadas</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== PREÇOS ====== -->
+  <section id="precos" class="section">
+    <div class="container">
+      <div class="center max-w-md" style="margin-inline:auto;">
+        <h2>Planos e Preços</h2>
+        <p class="lead">Escolha o plano perfeito para o seu momento. Você pode migrar quando quiser.</p>
+      </div>
+      <div class="pricing" style="margin-top: 24px;">
+        <div class="price-card">
+          <span class="tag">Essencial</span>
+          <h3 style="margin:.5rem 0 0">Comece do jeito certo</h3>
+          <p class="lead">Para quem precisa de presença online rápida e enxuta.</p>
+          <p class="price">R$ 49<small>/mês</small></p>
+          <ul>
+            <li class="check">✓ 1 página • Landing</li>
+            <li class="check">✓ Suporte por email</li>
+            <li class="check">✓ Otimizações básicas</li>
+          </ul>
+          <a class="btn btn-primary" href="#contato">Assinar</a>
+        </div>
+        <div class="price-card popular">
+          <span class="tag">Pro</span>
+          <h3 style="margin:.5rem 0 0">Para crescer</h3>
+          <p class="lead">Ideal para portfólios e sites institucionais completos.</p>
+          <p class="price">R$ 129<small>/mês</small></p>
+          <ul>
+            <li class="check">✓ Até 6 páginas</li>
+            <li class="check">✓ Blog integrado</li>
+            <li class="check">✓ Suporte email/chat</li>
+          </ul>
+          <a class="btn btn-primary" href="#contato">Assinar</a>
+        </div>
+        <div class="price-card">
+          <span class="tag">Empresarial</span>
+          <h3 style="margin:.5rem 0 0">Escala máxima</h3>
+          <p class="lead">Para lojas e projetos com alto tráfego e integrações.</p>
+          <p class="price">R$ 349<small>/mês</small></p>
+          <ul>
+            <li class="check">✓ E‑commerce</li>
+            <li class="check">✓ Integrações ilimitadas</li>
+            <li class="check">✓ Suporte prioritário</li>
+          </ul>
+          <a class="btn btn-primary" href="#contato">Assinar</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== TESTEMUNHOS ====== -->
+  <section class="section muted">
+    <div class="container grid grid-3">
+      <blockquote class="card testimonial">
+        <div class="row" style="align-items:center;">
+          <span class="avatar" aria-hidden="true">A</span>
+          <div>
+            <strong>Ana Souza</strong><br><span class="text-muted">Empreendedora</span>
+          </div>
+        </div>
+        <p>“Entrega impecável, site leve e lindo. Ganhamos mais leads já na primeira semana.”</p>
+      </blockquote>
+      <blockquote class="card testimonial">
+        <div class="row" style="align-items:center;">
+          <span class="avatar" aria-hidden="true">M</span>
+          <div>
+            <strong>Marcos Lima</strong><br><span class="text-muted">Fotógrafo</span>
+          </div>
+        </div>
+        <p>“O portfólio ficou com um visual premium e carrega super rápido no celular.”</p>
+      </blockquote>
+      <blockquote class="card testimonial">
+        <div class="row" style="align-items:center;">
+          <span class="avatar" aria-hidden="true">L</span>
+          <div>
+            <strong>Larissa Pires</strong><br><span class="text-muted">Arquiteta</span>
+          </div>
+        </div>
+        <p>“Atendimento excelente e atenção aos detalhes. Recomendo de olhos fechados.”</p>
+      </blockquote>
+    </div>
+  </section>
+
+  <!-- ====== BLOG ====== -->
+  <section id="blog" class="section">
+    <div class="container">
+      <div class="center max-w-md" style="margin-inline:auto;">
+        <h2>Últimos artigos</h2>
+        <p class="lead">Dicas práticas de design, frontend e marketing digital.</p>
+      </div>
+      <div class="grid grid-3" style="margin-top: 22px;">
+        <article class="card">
+          <span class="tag">Frontend</span>
+          <h3 style="margin:.5rem 0 0">7 padrões de layout CSS para 2025</h3>
+          <p>Aprenda soluções reutilizáveis de Grid e Flexbox para acelerar seus projetos.</p>
+          <a class="btn" href="#">Ler mais →</a>
+        </article>
+        <article class="card">
+          <span class="tag">SEO</span>
+          <h3 style="margin:.5rem 0 0">Checklist de performance</h3>
+          <p>Otimize Core Web Vitals com lazy-loading, minificação e imagens adaptativas.</p>
+          <a class="btn" href="#">Ler mais →</a>
+        </article>
+        <article class="card">
+          <span class="tag">UI/UX</span>
+          <h3 style="margin:.5rem 0 0">Dark mode sem complicação</h3>
+          <p>Como implementar temas e manter contraste e legibilidade perfeitos.</p>
+          <a class="btn" href="#">Ler mais →</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== FAQ ====== -->
+  <section class="section muted">
+    <div class="container faq max-w-md">
+      <h2 class="center">Perguntas frequentes</h2>
+      <details>
+        <summary>Posso personalizar as cores e fontes?</summary>
+        <p>Sim! As variáveis CSS no <code>:root</code> permitem alterar a paleta e o estilo tipográfico rapidamente.</p>
+      </details>
+      <details>
+        <summary>Existe suporte para dark mode?</summary>
+        <p>Sim. O site respeita o <em>prefers-color-scheme</em> do sistema e possui um botão de alternância.</p>
+      </details>
+      <details>
+        <summary>É possível adicionar novas páginas?</summary>
+        <p>Claro. A arquitetura é modular e escalável, com componentes reutilizáveis.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- ====== GALERIA ====== -->
+  <section class="section">
+    <div class="container">
+      <h2 class="center">Galeria</h2>
+      <p class="lead center">Alguns cliques de bastidores.</p>
+      <div class="gallery" style="margin-top: 16px;">
+        <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=1600&auto=format&fit=crop" alt="Mesa de trabalho minimalista.">
+        <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1600&auto=format&fit=crop" alt="Pessoas programando.">
+        <img src="https://images.unsplash.com/photo-1550439062-609e1531270e?q=80&w=1600&auto=format&fit=crop" alt="Caderno e caneta com esboços.">
+        <img src="https://images.unsplash.com/photo-1492724441997-5dc865305da7?q=80&w=1600&auto=format&fit=crop" alt="Apresentação em tela grande.">
+        <img src="https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1600&auto=format&fit=crop" alt="Notebook com código aberto.">
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== CONTATO ====== -->
+  <section id="contato" class="section muted">
+    <div class="container">
+      <div class="grid grid-2">
+        <div>
+          <h2>Vamos conversar</h2>
+          <p class="lead">Tire dúvidas, peça um orçamento ou envie seu briefing. Respondemos em até 1 dia útil.</p>
+          <ul>
+            <li class="check">✓ Retorno rápido</li>
+            <li class="check">✓ Suporte humano</li>
+            <li class="check">✓ 100% em português</li>
+          </ul>
+        </div>
+        <form class="card" onsubmit="event.preventDefault(); openModal('modal-ok');">
+          <div class="grid" style="gap:.75rem;">
+            <label>
+              <span>Seu nome</span>
+              <input class="input" type="text" placeholder="Nome completo" required>
+            </label>
+            <label>
+              <span>Email</span>
+              <input class="input" type="email" placeholder="voce@exemplo.com" required>
+            </label>
+            <label>
+              <span>Assunto</span>
+              <select class="select">
+                <option>Orçamento</option>
+                <option>Suporte</option>
+                <option>Parceria</option>
+              </select>
+            </label>
+            <label>
+              <span>Mensagem</span>
+              <textarea class="textarea" rows="4" placeholder="Conte mais sobre o seu projeto"></textarea>
+            </label>
+            <button class="btn btn-primary" type="submit">Enviar mensagem</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== MODAL ====== -->
+  <dialog id="modal-ok" style="border:none; border-radius: var(--radius-lg); padding:0; background:transparent;">
+    <div class="card" role="document" style="min-width:min(92vw,500px);">
+      <h3>Mensagem enviada ✅</h3>
+      <p>Obrigado! Em breve vamos retornar ao seu contato.</p>
+      <div class="row" style="justify-content:flex-end;">
+        <button class="btn" onclick="closeModal('modal-ok')">Fechar</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ====== FOOTER ====== -->
+  <footer class="section-sm">
+    <div class="container grid" style="gap: 18px;">
+      <div class="row" style="align-items:center; justify-content: space-between;">
+        <div class="brand"><span class="logo" aria-hidden="true">X</span><span>Marca X</span></div>
+        <div class="row">
+          <a class="link" href="#">Termos</a>
+          <a class="link" href="#">Privacidade</a>
+          <a class="link" href="#">Contato</a>
+        </div>
+      </div>
+      <small style="color:var(--text-muted)">© <span id="year"></span> Marca X. Todos os direitos reservados.</small>
+    </div>
+  </footer>
+
+  <script>
+    // ====== NAV MOBILE ======
+    const menuBtn = document.getElementById('menuBtn');
+    const menu = document.getElementById('menu');
+    menuBtn?.addEventListener('click', () => {
+      const open = menu.classList.toggle('open');
+      menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+
+    // ====== THEME TOGGLE (Dark/Light) ======
+    const themeBtn = document.getElementById('themeBtn');
+    const html = document.documentElement;
+    const saved = localStorage.getItem('theme');
+    if (saved) html.classList.add(saved);
+
+    function toggleTheme(){
+      if (html.classList.contains('light')) {
+        html.classList.remove('light'); html.classList.add('dark'); localStorage.setItem('theme','dark');
+      } else if (html.classList.contains('dark')) {
+        html.classList.remove('dark'); html.classList.add('light'); localStorage.setItem('theme','light');
+      } else {
+        // Se nenhuma classe, alterna com base no prefers-color-scheme
+        const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+        html.classList.add(prefersLight ? 'dark' : 'light');
+        localStorage.setItem('theme', prefersLight ? 'dark' : 'light');
+      }
+    }
+    themeBtn?.addEventListener('click', toggleTheme);
+
+    // ====== MODAL HELPERS ======
+    function openModal(id){ document.getElementById(id).showModal(); }
+    function closeModal(id){ document.getElementById(id).close(); }
+    window.openModal = openModal; window.closeModal = closeModal;
+
+    // ====== ANIMAÇÃO ON SCROLL ======
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('show');
+      })
+    }, { threshold: .12 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // ====== ANO FOOTER ======
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
 
